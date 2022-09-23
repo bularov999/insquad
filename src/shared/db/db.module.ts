@@ -12,6 +12,7 @@ import { Books } from 'src/books/entity/books.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService): Promise<TypeOrmModuleOptions> => {
+        const database = configService.get<string>(DB_DATABASE)
         const conf: TypeOrmModuleOptions = {
           type: 'postgres',
           host: configService.get<string>(DB_HOST),
@@ -19,6 +20,10 @@ import { Books } from 'src/books/entity/books.entity';
           username: configService.get<string>(DB_USERNAME),
           password: configService.get<string>(DB_PASSWORD),
           database: configService.get<string>(DB_DATABASE),
+          url: database,
+          ssl: {
+            rejectUnauthorized: false,
+          },
           entities:  [User, Books],
           synchronize: true,
           migrationsTableName: 'migrations',
