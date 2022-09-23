@@ -1,0 +1,36 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:11.5
+    container_name: ${DB_HOST}
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ../tmp/postgres/kvipo:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
